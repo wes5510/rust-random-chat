@@ -1,6 +1,9 @@
+#[path = "client_handler.rs"]
+mod client_handler;
+
 use std::{
     io::{Read, Write},
-    net::{TcpListener, TcpStream},
+    net::TcpListener,
 };
 
 pub struct Server {
@@ -17,15 +20,11 @@ impl Server {
         let listener = TcpListener::bind(format!("{}:{}", self.host, self.port)).unwrap();
 
         for stream in listener.incoming() {
-            let stream = stream.unwrap();
+            let mut stream = stream.unwrap();
+            let mut buf = [0; 512];
 
-            Server::handle_client(stream);
+            stream.read(&mut buf).unwrap();
+            stream.write(client_handler::echo(&buf)).unwrap();
         }
-    }
-
-    pub fn handle_client(mut stream: TcpStream) {
-        let mut buf = [0; 512];
-        stream.read(&mut buf).unwrap();
-        stream.write(&buf).unwrap();
     }
 }
