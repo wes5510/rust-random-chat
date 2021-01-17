@@ -2,11 +2,10 @@
 extern crate lazy_static;
 extern crate config;
 
+mod chat_server;
+
+use crate::chat_server::Server;
 use config::Config;
-use std::{
-    io::{Read, Write},
-    net::{TcpListener, TcpStream},
-};
 
 lazy_static! {
     static ref SETTINGS: Config = {
@@ -16,20 +15,11 @@ lazy_static! {
     };
 }
 
-fn echo_stream(mut stream: TcpStream) {
-    let mut buf = [0; 512];
-    stream.read(&mut buf).unwrap();
-    stream.write(&buf).unwrap();
-}
-
 fn main() {
-    let host = SETTINGS.get_str("host").unwrap();
-    let port = SETTINGS.get_int("port").unwrap();
-    let listener = TcpListener::bind(format!("{}:{}", host, port)).unwrap();
+    let server = Server::new(
+        SETTINGS.get_str("host").unwrap(),
+        SETTINGS.get_int("port").unwrap(),
+    );
 
-    for stream in listener.incoming() {
-        let stream = stream.unwrap();
-
-        echo_stream(stream);
-    }
+    server.run();
 }
