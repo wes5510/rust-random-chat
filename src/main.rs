@@ -3,8 +3,10 @@ extern crate lazy_static;
 extern crate config;
 
 use config::Config;
-use std::io::Write;
-use std::net::{TcpListener, TcpStream};
+use std::{
+    io::{Read, Write},
+    net::{TcpListener, TcpStream},
+};
 
 lazy_static! {
     static ref SETTINGS: Config = {
@@ -14,9 +16,10 @@ lazy_static! {
     };
 }
 
-fn connection_handler(mut stream: TcpStream) {
-    let str = b"hello\n";
-    stream.write(str).unwrap();
+fn echo_stream(mut stream: TcpStream) {
+    let mut buf = [0; 512];
+    stream.read(&mut buf).unwrap();
+    stream.write(&buf).unwrap();
 }
 
 fn main() {
@@ -27,6 +30,6 @@ fn main() {
     for stream in listener.incoming() {
         let stream = stream.unwrap();
 
-        connection_handler(stream);
+        echo_stream(stream);
     }
 }
