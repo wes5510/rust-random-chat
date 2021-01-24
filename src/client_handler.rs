@@ -1,11 +1,31 @@
-pub fn echo(buf: &[u8]) -> &[u8] {
-    return buf;
+use std::{collections::HashMap, net::TcpStream};
+
+struct Session {
+    stream: TcpStream,
+}
+
+pub struct SessionManager {
+    sessions: HashMap<u64, Session>,
+    seq: u64,
+}
+
+impl SessionManager {
+    pub fn new() -> Self {
+        return SessionManager {
+            sessions: HashMap::new(),
+            seq: 0,
+        };
+    }
+
+    pub fn create_session(&mut self, stream: TcpStream) {
+        self.seq = self.seq + 1;
+        self.sessions.insert(self.seq, Session { stream });
+    }
 }
 
 mod tests {
     #[test]
-    fn echo() {
-        let str = "abc";
-        assert_eq!(super::echo(str.as_bytes()), str.as_bytes());
+    fn create_session() {
+        assert_eq!(1 + 1, 2);
     }
 }
