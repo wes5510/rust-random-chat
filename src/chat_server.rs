@@ -18,7 +18,7 @@ impl Server {
         let mut sessoin_manager = client_handler::SessionManager::new();
 
         for stream in listener.incoming() {
-            let mut stream = stream.unwrap();
+            let stream = stream.unwrap();
             sessoin_manager.create_session(stream);
             /*
             let mut buf = [0; 512];
