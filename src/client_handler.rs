@@ -14,6 +14,14 @@ impl Session {
     pub fn wating(&mut self) {
         self.stream.write("Wating...".as_bytes()).unwrap();
     }
+
+    pub fn connect(&mut self, other_session_id: u64) {
+        let text: String = format!(
+            "Enjoy chatting with {}-{}!!!",
+            USER_PREFIX, other_session_id
+        );
+        self.stream.write(text.as_bytes()).unwrap();
+    }
 }
 
 pub struct SessionManager {
@@ -49,6 +57,14 @@ impl SessionManager {
         let session = self.sessions.get_mut(&id).unwrap();
         session.wating();
         self.wating_queue.push_front(id);
+    }
+
+    pub fn connect(&mut self, session_id: u64, other_session_id: u64) {
+        let session = self.sessions.get_mut(&session_id).unwrap();
+        session.connect(other_session_id);
+
+        let other_session = self.sessions.get_mut(&other_session_id).unwrap();
+        other_session.connect(session_id);
     }
 }
 
