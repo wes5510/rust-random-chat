@@ -1,28 +1,12 @@
+#[path = "session.rs"]
+mod session;
+
+use session::Session;
 use std::{
     collections::{HashMap, VecDeque},
-    io::Write,
     net::TcpStream,
+    str,
 };
-
-const USER_PREFIX: &'static str = "user";
-
-struct Session {
-    stream: TcpStream,
-}
-
-impl Session {
-    pub fn wating(&mut self) {
-        self.stream.write("Wating...".as_bytes()).unwrap();
-    }
-
-    pub fn connect(&mut self, other_session_id: u64) {
-        let text: String = format!(
-            "Enjoy chatting with {}-{}!!!",
-            USER_PREFIX, other_session_id
-        );
-        self.stream.write(text.as_bytes()).unwrap();
-    }
-}
 
 pub struct SessionManager {
     sessions: HashMap<u64, Session>,
@@ -41,9 +25,7 @@ impl SessionManager {
 
     pub fn create_session(&mut self, stream: TcpStream) -> u64 {
         self.seq = self.seq + 1;
-        let new_session = Session {
-            stream: stream.try_clone().unwrap(),
-        };
+        let new_session = Session::new(stream);
         self.sessions.insert(self.seq, new_session);
 
         self.seq
@@ -65,6 +47,20 @@ impl SessionManager {
 
         let other_session = self.sessions.get_mut(&other_session_id).unwrap();
         other_session.connect(session_id);
+
+        self.connect_stream(session_id, other_session_id);
+    }
+
+    fn connect_stream(&mut self, session_id: u64, other_session_id: u64) {
+        let session = self.sessions.get_mut(&session_id).unwrap();
+        let mut copied_session = session.copy();
+        let session_buf = copied_session.read_stream();
+
+        let other_session = self.sessions.get_mut(&other_session_id).unwrap();
+        let other_session_buf = other_session.read_stream();
+
+        copied_session.write_stream(str::from_utf8(&other_session_buf).unwrap());
+        other_session.write_stream(str::from_utf8(&session_buf).unwrap());
     }
 }
 

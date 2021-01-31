@@ -1,5 +1,5 @@
-#[path = "client_handler.rs"]
-mod client_handler;
+#[path = "session_manager.rs"]
+mod session_manager;
 
 use std::net::TcpListener;
 
@@ -15,7 +15,7 @@ impl Server {
 
     pub fn run(&self) {
         let listener = TcpListener::bind(format!("{}:{}", self.host, self.port)).unwrap();
-        let mut session_manager = client_handler::SessionManager::new();
+        let mut session_manager = session_manager::SessionManager::new();
 
         for stream in listener.incoming() {
             let stream = stream.unwrap();
