@@ -21,16 +21,16 @@ impl SessionManager {
 
     pub fn create_session(&mut self, stream: TcpStream) {
         self.seq = self.seq + 1;
-        let mut newSession = Session {
+        let mut new_session = Session {
             stream: stream.try_clone().unwrap(),
         };
 
-        newSession
+        new_session
             .stream
             .write(self.say_hello().as_bytes())
             .unwrap();
 
-        self.sessions.insert(self.seq, newSession);
+        self.sessions.insert(self.seq, new_session);
     }
 
     fn say_hello(&self) -> String {
