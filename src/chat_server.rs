@@ -28,7 +28,7 @@ impl Server {
                     session_manager.wating(new_session_id);
                 }
                 Some(session_id) => {
-                    println!("hello: {}", session_id);
+                    session_manager.connect(session_id, new_session_id);
                 }
             }
         }
